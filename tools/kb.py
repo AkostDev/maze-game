@@ -23,7 +23,7 @@ SYNC = os.path.join(KB, '.sync.json')
 # Файлы, по которым в карте только заголовок (без символов)
 EXTRA = ['sw.js', 'test/levels.test.js', 'test/game.test.js', 'test/progress.test.js', 'test/sprites.test.js', 'test/pwa.test.js',
          'test/autopilot.js', 'test/browser.smoke.mjs', 'tools/verify.sh', 'tools/browser.mjs', 'tools/screens.mjs',
-         'tools/vendor.mjs', 'tools/icon.mjs', 'tools/kb.py']
+         'tools/live.mjs', 'tools/vendor.mjs', 'tools/icon.mjs', 'tools/kb.py']
 
 # Порядок папок src/ в карте: от чистой логики к сценам
 SRC_ORDER = ['core', 'gfx', 'audio', 'ui', 'scenes', '']

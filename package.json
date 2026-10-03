@@ -4,11 +4,17 @@
   "description": "Волшебный клубок — пиксельная игра-лабиринт на Phaser 4",
   "private": true,
   "type": "module",
+  "homepage": "https://akostdev.github.io/maze-game/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AkostDev/maze-game.git"
+  },
   "scripts": {
     "start": "python3 -m http.server 8080",
-    "test": "node --test tests/",
+    "test": "node --test test/*.test.js",
     "verify": "tools/verify.sh",
-    "vendor": "node tools/vendor.mjs"
+    "vendor": "node tools/vendor.mjs",
+    "live": "node tools/live.mjs"
   },
   "devDependencies": {
     "phaser": "4.2.1",

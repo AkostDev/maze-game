@@ -378,7 +378,10 @@
 "_": "001deaf2f6"
 },
 "tools/kb.py": {
-"_": "b600ab5fd1"
+"_": "eb20c9084c"
+},
+"tools/live.mjs": {
+"_": "2a96963574"
 },
 "tools/screens.mjs": {
 "_": "e39cf5a7f4"

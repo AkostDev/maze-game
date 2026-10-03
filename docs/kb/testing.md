@@ -1,6 +1,6 @@
 # Проверка: тесты, смоук в браузере, снимки экранов, отладка
 
-Источники: test/levels.test.js, test/game.test.js, test/progress.test.js, test/sprites.test.js, test/pwa.test.js, test/autopilot.js, test/browser.smoke.mjs, tools/verify.sh, tools/browser.mjs, tools/screens.mjs
+Источники: test/levels.test.js, test/game.test.js, test/progress.test.js, test/sprites.test.js, test/pwa.test.js, test/autopilot.js, test/browser.smoke.mjs, tools/verify.sh, tools/browser.mjs, tools/screens.mjs, tools/live.mjs
 
 ## Что запускать
 | Изменил | Команда | Время |
@@ -8,6 +8,7 @@
 | логику (src/core), данные графики | `tools/verify.sh` | ~2 с |
 | сцены, интерфейс, камеру, ввод, текстуры | `tools/verify.sh ui`, затем снимки `node tools/screens.mjs <пресет>` | ~45 с + ~3 с на снимок |
 | только документы базы знаний | `python3 tools/kb.py check` | мгновенно |
+| опубликовал (`git push`) | `node tools/live.mjs --wait` — живой сайт на GitHub Pages | 1–2 мин |
 
 `tools/verify.sh` печатает по одной строке на этап (`тесты: ok…`, `браузер: ok…`, `kb: ok`); подробности — только при ошибке.
 Код возврата ≠ 0 при любой проблеме. Полный вывод тестов — `npm test` (нужен редко).
@@ -41,6 +42,11 @@ menu, levels, settings, intro, game, hint, pause, result, lose.
 Примеры: ночной уровень — `--level 30 game`; сторожа — `--level 22 game`; карточка первого уровня — `--level 0 intro`;
 экранные стрелки — `--js "KLUBOK.progress.setSetting('dpad', true); KLUBOK.go('Game', { index: 22 })" dpad`.
 Смотри не больше, чем нужно: 1–2 снимка затронутого экрана; широкий прогон по всем экранам — через агента `ui-check`.
+
+## Живой сайт — tools/live.mjs
+`node tools/live.mjs` открывает опубликованную игру (адрес — `homepage` в package.json) и проверяет: нет ошибок, WebGL, версия совпадает
+с локальной, первый уровень запускается. `--wait` — сначала дождаться публикации текущего коммита (опрос развёртываний github-pages
+через открытый API GitHub, до 6 минут); `--shot файл.png` — снимок меню.
 
 ## Отладка в браузере
 `npm start` → http://localhost:8080. В консоли: `KLUBOK.go('Game', { index: 30 })`, `KLUBOK.game.scene.getScene('Game')` (поля `logic`, `level`),

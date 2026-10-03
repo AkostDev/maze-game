@@ -122,4 +122,4 @@
 - Сцены `scene.start(key)`: Boot (BootScene.js) · Game (GameScene.js) · Hud (HudScene.js) · Levels (LevelsScene.js) · Menu (MenuScene.js) · Pause (PauseScene.js) · Result (ResultScene.js) · Settings (SettingsScene.js)
 
 ## Прочие файлы (строк) — описание в docs/kb/testing.md
-sw.js (35) · test/levels.test.js (108) · test/game.test.js (142) · test/progress.test.js (67) · test/sprites.test.js (33) · test/pwa.test.js (33) · test/autopilot.js (48) · test/browser.smoke.mjs (205) · tools/verify.sh (27) · tools/browser.mjs (71) · tools/screens.mjs (85) · tools/vendor.mjs (43) · tools/icon.mjs (32) · tools/kb.py (527)
+sw.js (35) · test/levels.test.js (108) · test/game.test.js (142) · test/progress.test.js (67) · test/sprites.test.js (33) · test/pwa.test.js (33) · test/autopilot.js (48) · test/browser.smoke.mjs (205) · tools/verify.sh (27) · tools/browser.mjs (71) · tools/screens.mjs (85) · tools/live.mjs (66) · tools/vendor.mjs (43) · tools/icon.mjs (32) · tools/kb.py (527)
