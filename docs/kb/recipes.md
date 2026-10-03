@@ -1,78 +1,69 @@
 # Рецепты: что и где менять
 
 Чек-листы для типовых задач. Имена — как в коде; где что лежит по строкам — в MAP.md. После любого рецепта: `tools/verify.sh`
-(для интерфейса — `tools/verify.sh ui` + снимки `tools/screens.sh`), затем обнови затронутые документы базы знаний.
+(для сцен и графики — `tools/verify.sh ui` + снимки `node tools/screens.mjs`), затем обнови затронутые документы базы знаний.
+Перед работой с API движка открой подходящий скилл `phaser-*` (список — в phaser.md).
 
 ## Новый мир
-1. levels.js `WORLDS` — объект мира (все поля как у соседей: цвета, `item`, `itemGender`, `itemName` в трёх формах, `enemy`, `enemyName`, 10 `names`).
-2. sprites.js — ветки в `drawItem()` (вид находки), `drawEnemy()` (вид сторожа), `drawDeco()` (декор пола).
-3. audio.js `SCALES` — лад и темп музыки мира.
-4. Сказки: story.js `WORLD_IDS`, `ITEMS_NOM`, `TALES`, `THEMES`; ai.js `WORLD_IDS` и текст промпта в `storyPrompt()`; массив id миров в `story()` (ui.js).
-5. Кампания: мир уровня считает `worldFor()` — 5 миров × `LEVELS_PER_WORLD` = `CAMPAIGN_LEVELS`. Шестой мир попадёт в кампанию только
-   с увеличением `CAMPAIGN_LEVELS` (тогда поправь тексты «40 уровней», достижения `campaign` и `worlds_5`, цикл в tests/levels.test.js).
+1. src/core/worlds.js `WORLDS` — запись со всеми полями как у соседей (палитра, `item`, `itemName`, `enemy`, 10 `names`).
+2. src/gfx/sprites.js `SPRITES` — спрайты находки и сторожа с именами из `item` и `enemy`.
+3. src/gfx/mazeLayer.js `wallAccent()` — рисунок стены; src/gfx/textures.js `buildBackdrops()` — значок узора фона (`marks`).
+4. src/audio/sfx.js `SCALES` — лад и темп музыки (ключ = `id` мира).
+5. Кампания: `CAMPAIGN_LEVELS` = миры × `LEVELS_PER_WORLD` — увеличь, иначе мир попадёт только в бесконечный режим. Тест проверяет равенство.
 
 ## Новый герой
-sprites.js: запись в `HEROES` (`id, name, body, belly, accent, thread`) + ветка в `drawHero()` (последняя ветка — else). Выбор героя, аватары и нить
-подхватятся сами (`welcome()`, `heroCanvas()`, `drawTrail()`). Сетка `.heroes` / `.hero-pick` рассчитана на 5 — проверь онбординг на 320 px.
+src/core/worlds.js `HEROES` (`id`, `name`, `thread`) + спрайт в `SPRITES` с тем же `id` и строками `alt` для кадра шага.
+Меню, нить и анимация `имя_walk` подхватятся сами. Тест проверит наличие спрайта и `alt`.
 
-## Новый предмет-бонус (как часы/светлячок/сердце)
-1. levels.js: количество в `extras` (`resolveParams()`) и расстановка `placeSpread(…, 'вид')` в `designCandidate()`.
-2. game.js `take()` — эффект бонуса. 3. sprites.js `drawItem()` — рисунок. 4. При необходимости — подсказка в `intro()` и светимость в `drawFog()`.
+## Новый спрайт или иконка
+- Спрайт: запись в `SPRITES` — 16 строк по 8 символов с `m: 1` (зеркальный) или по 16 без `m`; символы — из `PALETTE`.
+  Белый спрайт можно красить тинтом. Кадр появится в атласе `sprites` под своим именем.
+- Иконка: 12 строк по 12 символов в `ICONS`, `#` — пиксель. Использование — `icon()` или параметр `icon` у `button()`.
+- Посмотреть результат: `node tools/screens.mjs` с подходящим пресетом; `--hd` — крупно.
+- Новый цвет — в `PALETTE` одним символом (проверь, что символ свободен).
 
-## Новая механика уровня (лёд, односторонние проходы, кнопки…)
-1. Данные: новое поле level в `designCandidate()` → `buildLevel()` (и в data.md). Расстановка — после дверей/регионов, с учётом `used`.
-2. Решаемость: учесть в `greedyTour()` (иначе `optimalSteps` и проверка проходимости врут) и в проверках tests/levels.test.js.
-3. Правила: `passable()`, `arrive()`, при необходимости `chooseDir()` / `chooseStep()`; враги — `enemyNext()`; подсказка — `useHint()` (она ходит по `passable()`).
-4. Отрисовка: статичное — `buildLayer()`, меняющееся — `draw()`; спрайт в sprites.js.
-5. Событие для совёнка: `emit()` в game.js → ветка в `onEvent()`. Автопилот в tests/game.test.js должен уметь проходить механику.
-6. Включение по возрасту/уровню — поле в `AGES` (по образцу `gateFrom`, `portalFrom`).
+## Новая механика уровня (лёд, кнопки, односторонние проходы…)
+1. Данные: поле level в `designCandidate()` → `buildLevel()` (и в data.md). Расстановка — после дверей и порталов, с учётом `used`.
+2. Порог появления — ключ в `UNLOCKS` (карточка-знакомство появится сама: текст — в `INTROS`, картинка — в `showIntro()`).
+   На уровне-знакомстве механика должна присутствовать гарантированно — добавь проверку в test/levels.test.js.
+3. Решаемость: учесть в `greedyTour()` (иначе `optimalSteps` и проверка проходимости врут) и в `check` теста уровней.
+4. Правила: `passable()`, `arrive()`, `chooseStep()`; для сторожей — `enemyNext()`; подсказка ходит по `passable()`.
+5. Показ: статичное — `paintMaze()`, подвижное — `buildWorld()` и `update()` игровой сцены; событие — `emit()` → ветка в `onGameEvent()`.
+6. Автопилот test/autopilot.js должен уметь проходить механику.
 
 ## Новый тип сторожа
-levels.js: выбор `type` в `designCandidate()` (пороги — поля `AGES`); game.js `enemyNext()` — поведение; при своём рисунке — `drawEnemy()`.
-Проверь сон (`updateEnemies()`), безопасную зону старта и автопилот (в tests/game.test.js `stuck` — провал, поражения — нет).
+src/core/levels.js: выбор `type` в `designCandidate()` (порог — в `UNLOCKS`); src/core/game.js `enemyNext()` — поведение; вид — тинт или спрайт
+в `buildWorld()`. Проверь сон (`updateEnemies()`), безопасную зону у старта и долю поражений автопилота.
 
-## Новый режим
-1. levels.js `MODES` (`id, name, desc, icon, color`). Кампанийный (с картой уровней и прогрессом) — ещё и в `CAMPAIGN_MODES`.
-2. Правила — флаг в `rules` в `resolveParams()`; читать его в game.js / render.js / `showHud()` / `intro()` (правила берутся из `level.rules`, не из имени режима).
-3. Интерфейс: список режимов в `home()` и вкладки в `records()` (массивы id в ui.js), `MODE_COLORS` + класс `.c-…` в CSS; для особого режима — ветка в `openMode()`, `next()`, `quit()`, `showHud()`.
-4. Прогресс: `recordWin()` (кампания пишет в `modeProgress()`; особые режимы — своя ветка, как daily), достижение `all_modes` (target = число режимов).
-5. Тесты: циклы по `CAMPAIGN_MODES` подхватят сами; для особого режима добавь прогон в tests/game.test.js и шаг в tests/ui.smoke.js.
+## Изменить кривую сложности
+Все числа — в `resolveParams()` и `UNLOCKS`. После правки: `tools/verify.sh` (автопилот не должен застревать, поражений ≤ 15 %),
+обнови таблицу в levels.md. Помни: меняются все уровни кампании.
 
 ## Новая настройка
-1. progress.js `DEFAULT_SETTINGS` — ключ и значение по умолчанию (миграция старых сохранений произойдёт сама в `load()`).
-2. ui.js `settings()` — строка `sw(...)` для булевой или `seg(...)` для выбора.
-3. main.js `applySettings()` — применить (или читать `P.settings.ключ` в месте использования; для игры — передать в `Game.start()` через `startLevel()`).
+1. src/core/progress.js `DEFAULT_SETTINGS` — ключ и значение по умолчанию (старые сохранения подхватят сами).
+2. Переключатель — запись в `TOGGLES` (появится и в настройках, и в паузе); иконка — в `ICONS`.
+3. Применение: `toggleSetting()` / `sfx.configure()` или чтение `progress.settings.ключ` в месте использования.
 
-## Новый экран
-Метод в объекте `UI` (ui.js) по образцу `achievements()`: возвращает `this.screen([this.topbar(this.backBtn(…), 'Заголовок'), …])`; открывается
-`show('имя', arg)`. Кнопка входа — в `home()` или `settings()`. Стили — новый раздел в css/style.css. Добавь экран в tests/ui.smoke.js, tools/audit.js
-и пресет в tools/screens.sh.
-
-## Новая модалка
-Метод по образцу `confirm()` / `pauseModal()`: `openModal([...узлы], dismiss)`; кнопки в `.modal-actions`. Если открывается во время игры —
-поставь `game.paused` (см. `pause()`), иначе игра продолжит идти под модалкой.
-
-## Новая иконка / звук / фраза
-- Иконка: ключ в `ICONS` (ui.js) — содержимое SVG 24×24 штрихом; заливка — константой F. Использование: `icon()` / `iconEl()`.
-- Звук: ключ в `SFX` (audio.js) из `tone()` / `noise()`; вызов `audio.play('имя')`.
-- Реплика совёнка на событие: `emit()` в game.js → ветка в `onEvent()` → `owl()`; случайные фразы — `LOCAL_PHRASES` + вид в `fetchPhrases()`.
-  Малышам — озвучка: второй аргумент `owl()`; числа — словами (`numWord()`, `plural()`).
-
-## Новое достижение / показатель статистики
-progress.js: счётчик — в `blankStats()` и приращение в `recordWin()` (данные берутся из result — при необходимости добавь поле в `result()`);
-запись в `ACHIEVEMENTS` (`id, title, desc, icon, target, value`). Экран достижений и сводка обновятся сами.
+## Новая сцена (экран)
+Класс-наследник `UiScene` в src/scenes с `build()`; ключ сцены — в `super('Имя')`. Добавь в массив сцен в src/main.js (порядок = порядок отрисовки),
+в `ASSETS` в sw.js. Переходы — `goto()`. Модальная сцена поверх игры: добавь ключ в `OVERLAYS` (src/ui/kit.js), начни `build()` с `dim()`,
+а перед запуском поставь игру на паузу (образец — `pauseGame()`). Добавь шаг в test/browser.smoke.mjs и пресет в tools/screens.mjs.
 
 ## Новый показатель в HUD
-ui.js: чип `.hchip` в `showHud()` + обновление в `updateHud()` и **обязательно значение в строке-подписи** `sig`. Проверь ширину HUD на 320 px
-(`tools/verify.sh ui`).
+src/scenes/HudScene.js `refresh()`: элемент в ряду счётчиков и **значение в подписи** `sig`. Проверь ширину шапки на телефоне (`-m`).
 
-## Новый файл скрипта
-index.html (порядок зависимостей!) → sw.js (список ASSETS) → tests/run.sh (списки файлов для jsc — в том же порядке) → строка в таблице CLAUDE.md.
-Модуль — IIFE с `const MZ = root.MZ = root.MZ || {}` и экспортом `MZ.имя = …`.
+## Новый звук
+Ключ в `SFX` (src/audio/sfx.js) из `tone()` / `noise()`; вызов `sfx.play('имя')` в `onGameEvent()`.
+
+## Новый файл модуля
+src/…/имя.js (ES-модуль, шапка-комментарий в первой строке — она попадает в карту кода) → `ASSETS` в sw.js (тест test/pwa.test.js напомнит).
+Модули логики (src/core) не импортируют Phaser и DOM — их тестирует Node.
+
+## Обновить Phaser
+Версия — в package.json → `npm install` → `npm run vendor` (копирует сборку в vendor/ и скиллы в .claude/skills/phaser-*) → `tools/verify.sh ui`.
 
 ## Выпуск версии
-`MZ.config.version` (config.js) и имя кэша в sw.js (иначе у установленных PWA останутся старые файлы) → docs/PLAN.md → статус в CLAUDE.md.
+`VERSION` в src/config.js, имя кэша в sw.js и `version` в package.json (тест сверяет все три) → docs/PLAN.md → статус в CLAUDE.md → коммит в `main`.
 
 ## Изменение формата сохранений
-Новое поле с умолчанием — через `blankStats()` / `blankProfile()` / `DEFAULT_SETTINGS` и миграцию в `load()`. Несовместимое изменение — новая версия
-`v` и ключа `KEY`, с переносом старых данных. Ключ прогресса кампании — `режим@возраст` (`modeProgress()`).
+Новое поле с умолчанием — в `blank()` и разбор в `load()` (только известные типы). Несовместимое изменение — новый `KEY` и перенос старых данных.

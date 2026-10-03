@@ -4,119 +4,122 @@
 > Запись `имя:строка-конец` = диапазон строк. Читать точечно: `Read(file, offset=строка, limit=конец−строка+1)`.
 > `·Раздел·` — метка раздела внутри файла. После своей правки номера ниже неё сдвигаются — перечитай этот файл.
 
-## js/config.js (27) → MZ.config
-Настройки ИИ-помощника (vibecode.moe, OpenAI-совместимый API).
+## src/core/game.js (393) → Game, computeStars
+Игровая логика одного уровня: пошаговое движение по клеткам с плавной интерполяцией, предметы, ключи и дверцы,
+- class Game:12-380 → ·Ввод· begin:64-69 setHeld:71-76 push:78-82 release:83 tapToward:85-90 ·Правила прохода· passable:93-102 bump:103-112 chooseStep:115-128 startMove:130-135 openGate:137-141 arrive:143-163 take:165-182 teleport:184-194 ·Подсказка-клубочек· useHint:198-219 ·Сторожа· updateEnemies:222-265 closedGate:266 enemyNext:267-294 onHit:296-304 ·Кадр· update:307-355 ·Итоги· win:358-363 lose:364-368 result:370-377 emit:379-380
+- computeStars:384-392
 
-## js/util.js (162) → MZ.util
-Общие утилиты: сидируемый генератор случайных чисел, математика, хранилище, DOM-хелперы
-- xmur3:7-18 sfc32:21-33 makeRng:35-55 hashStr:57 clamp:59 lerp:60 invLerp:61
-- ease:63-68 → outCubic:64 inOutSine:65 outBack:66 outElastic:67-68
-- fmtTime:70-74 todayKey:76-80 plural:83-89 ONES:92-93 TENS:94 numWord:95-102
-- store:106-123 → get:107-113 set:114-118 remove:119-122
-- el:126-150 uid:152-154 reducedMotion:156-158
+## src/core/levels.js (386) → LEVELS_PER_WORLD, CAMPAIGN_LEVELS, HERO_SPEED, UNLOCKS, worldFor, difficulty, introFor, levelTitle, resolveParams, multiBfs, buildLevel, levelSpec
+Дизайнер уровней: одна кампания с плавной кривой сложности (без возрастов и режимов).
+- LEVELS_PER_WORLD:10 CAMPAIGN_LEVELS:11 HERO_SPEED:12 UNLOCKS:15-23 SHAPE_POOL:25 ALGOS:26-31 worldFor:33 difficulty:36-42 introFor:45-49 levelTitle:51-54 edgeKey:56 ·Параметры уровня· resolveParams:59-121 ·Проектирование одного кандидата· designCandidate:124-299 multiBfs:301-315 greedyTour:318-341 ·Сборка уровня· buildLevel:344-380 levelSpec:383-385
 
-## js/maze.js (466) → MZ.maze
+## src/core/maze.js (431) → DIRS, OPP, Grid, generators, generate, braid, bfs, pathTo, farthest, SHAPES, shapeMask, shapeFill, largestComponent, trimMask, metrics, decisionsOnPath
 Лабиринты: сетка с битмасками проходов, маски-фигуры, генераторы, braid, поиск путей.
-- DIRS:9-14 OPP:15
-- class Grid:17-56 → constructor:18-24 idx:25 x:26 y:27 active:28 neighbor:29-34 isOpen:35 carve:36-42 degree:43-46 activeList:47-51 dirBetween:52-55
-- ·Генераторы (работают на любой связной маске)· randomActive:60-63 backtracker:66-85 growingTree:88-108 prim:111-138 kruskal:141-161 wilson:164-200 huntAndKill:203-237 generate:241-245 braid:248-271 bfs:274-302 pathTo:304-314 farthest:316-320 ·Маски-фигуры· largestComponent:325-346 pointInPolygon:348-355 STAR_POLY:357
-- SHAPES:364-380 → circle:365 diamond:366 heart:367-371 star:372 flower:373-376 ring:377 cross:378 house:379-380
-- ·Маски-фигуры· SHAPE_NAMES:381 shapeMask:383-394 shapeFill:396-401 asciiMask:404-423 trimMask:426-436 ·Метрики· metrics:439-448 decisionsOnPath:450-454
+- DIRS:6-11 OPP:12
+- class Grid:14-53 → idx:22 x:23 y:24 active:25 neighbor:26-31 isOpen:32 carve:33-39 degree:40-43 activeList:44-48 dirBetween:49-52
+- ·Генераторы (работают на любой связной маске)· randomActive:57-60 backtracker:63-82 growingTree:85-105 prim:108-135 kruskal:138-158 wilson:161-197 huntAndKill:200-234 generate:238-242 braid:245-268 bfs:271-299 pathTo:301-311 farthest:313-317 ·Маски-фигуры· largestComponent:322-343 pointInPolygon:345-352 STAR_POLY:354
+- SHAPES:361-377 → circle:362 diamond:363 heart:364-368 star:369 flower:370-373 ring:374 cross:375 house:376-377
+- ·Маски-фигуры· shapeMask:379-390 shapeFill:392-397 trimMask:400-410 ·Метрики· metrics:413-422 decisionsOnPath:424-428
 
-## js/levels.js (520) → MZ.levels
-Дизайнер уровней: миры, возрастные группы, кривая сложности, расстановка
-- LEVELS_PER_WORLD:12 CAMPAIGN_LEVELS:13 WORLDS:15-56 AGES:59-92 AGE_ORDER:93 MODES:95-102 CAMPAIGN_MODES:103 KEY_COLORS:105-110 PORTAL_COLORS:111 SHAPE_POOL:112 worldFor:114 difficulty:117-123 localTitle:125-129 edgeKey:131 ·Параметры уровня· resolveParams:134-231 ·Проектирование одного кандидата· designCandidate:234-416 multiBfs:418-432 greedyTour:435-459 ·Сборка уровня· buildLevel:462-503 campaignSpec:505-507 dailySpec:509-512
+## src/core/progress.js (122) → KEY, DEFAULT_SETTINGS, memoryStorage, Progress, progress
+Прогресс игрока: открытые уровни, звёзды и лучшие результаты, выбранный герой, настройки.
+- KEY:7 DEFAULT_SETTINGS:9-14 blank:16-18 memoryStorage:21-28
+- class Progress:30-110 → load:38-56 save:58-60 settings:62 setSetting:63-67 hero:69 setHero:70-74 unlocked:77 isUnlocked:78 best:79 stars:80 totalStars:81-85 rangeStars:87-91 recordWin:94-102 reset:104-109
+- browserStorage:112-118
 
-## js/sprites.js (573) → MZ.sprites
-Процедурная графика: герои, враги, предметы, ключи, дверцы, домик, порталы, декор. Без картинок.
-- TAU:5 HEROES:7-13 heroById:14 circle:16-19 ellipse:20-23 roundRect:24-33 shadow:34-36 eyes:39-63 ·Герои· drawHero:66-167 ·Враги· drawEnemy:170-266 ·Предметы· drawStar:269-279 drawHeartShape:281-287 drawItem:289-389 symbolPath:392-398 drawKey:400-422 drawGate:425-451 drawHouse:454-501 drawPortal:503-521 drawYarn:523-537 drawDeco:540-566
+## src/core/rng.js (73) → makeRng, hashStr, clamp, lerp, invLerp, fmtTime, plural
+Сидируемый генератор случайных чисел и математика. Уровни детерминированы от сида — Math.random в генерации не используется.
+- xmur3:4-15 sfc32:18-30 makeRng:32-51 hashStr:53 clamp:55 lerp:56 invLerp:57 fmtTime:59-63 plural:66-72
 
-## js/render.js (449) → MZ.Renderer
-Рендерер: статический слой лабиринта в кэше, камера со следованием и зумом, объекты, частицы, туман
-- TAU:7
-- class Renderer:9-445 → constructor:10-27 resize:29-38 setInsets:40 setLevel:42-49 viewW:51 viewH:52 fitScale:53-57 minCell:58-61 maxCell:62 targetScale:63-74 zoomBy:75-79 toggleOverview:80 worldToScreen:82-85 screenToWorld:86-89 updateCamera:91-110 wantedLayerScale:112-116 ·Статический слой· buildLayer:119-173 ·Эффекты· burst:176-189 confetti:190-199 floatText:200-202 hit:203 ·Кадр· draw:206-316 drawTrail:318-347 drawHint:349-385 updateParticles:387-403 drawFog:405-444
+## src/core/worlds.js (72) → WORLDS, HEROES, heroById, KEY_COLORS, PORTAL_COLORS, NIGHT
+Миры, герои, цвета ключей и порталов — данные без логики.
+- WORLDS:7-48 HEROES:51-57 heroById:59 KEY_COLORS:62-67 PORTAL_COLORS:69 NIGHT:71-72
 
-## js/audio.js (236) → MZ.audio
-Звук: синтез эффектов и музыки на WebAudio, озвучка (speechSynthesis), вибрация
-- A:6-11 → configure:13-19 unlock:22-35 suspend:37 resume:38 play:101-103 ·Генеративная музыка· startMusic:115-142 stopMusic:144-147 ·Озвучка· voices:164-168 configure:180 canSpeak:182 say:198-219 unlockSpeech:222-226 buzz:229-232
-- tone:40-55 noise:57-69 N:71
-- SFX:73-99 → click:74 step:75-80 collect:81 key:82 gate:83 locked:84 portal:85 hit:86 bump:87 door:88 win:89-92 lose:93 star:94 tick:95 bonus:96 hint:97 achievement:98-99
-- ·Генеративная музыка· SCALES:106-113 ·Озвучка· RATES:152 voiceScore:154-163 pickVoice:169-172 speakable:185-196
+## src/gfx/mazeLayer.js (108) → CELL, WALL, PITCH, toWorld, mazeSize, paintMaze, mazeCanvas
+Картинка лабиринта: статичный слой (пол, стены с передней гранью, коврик у выхода) рисуется попиксельно
+- CELL:8 WALL:9 PITCH:10 FACE:11 toWorld:14 mazeSize:16-18 abgr:20-23 mix:24-28 noise:29-33 wallAccent:36-42 paintMaze:44-96 mazeCanvas:98-107
 
-## js/input.js (216) → MZ.Input
-Ввод: Pointer Events (мышь, палец, стилус), клавиатура, экранный D-pad.
-- KEY_REPEAT:14 touchRepeat:15 KEYMAP:17-20
-- class Input:22-212 → constructor:23-32 game:34 active:35-38 bind:40-59 local:61-64 threshold:66 down:68-93 move:95-128 up:130-152 releaseAll:154-158 keyDown:160-174 keyUp:176-185 bindDpad:188-211
+## src/gfx/sprites.js (306) → PALETTE, SPRITE, ICON, SPRITES, GATE, ICONS, expand, validate
+Пиксельная графика как данные: палитра и ASCII-карты спрайтов. Картинок-файлов в игре нет —
+- PALETTE:9-17 SPRITE:19 ICON:20 SPRITES:22-166 GATE:169-172 ICONS:175-276 expand:279-285 validate:288-305
 
-## js/progress.js (248) → MZ.progress
-Профили, прогресс, рекорды и достижения. Всё хранится локально (localStorage).
-- KEY:6 MAX_RECORDS:7 DEFAULT_SETTINGS:9-12 blankStats:14-20 blankProfile:22-30
-- P:32-216 → load:35-52 save:54 settings:56 setSetting:57 profiles:59 active:60 setActive:61 createProfile:63-72 updateProfile:73-80 deleteProfile:81-86 resetProfile:87-95 modeProgress:98-103 totalStars:104-109 modeStars:110-115 completedCampaign:116-121 recordWin:124-181 recordLoss:183-188 records:190-198 ·Достижения· checkAchievements:201-208 achievementList:209-215
-- ACHIEVEMENTS:218-243
+## src/gfx/textures.js (184) → BUTTONS, INK, PAPER, LIGHT_SIZE, LIGHT_HOLE, buildTextures, buildAnimations
+Сборка текстур при загрузке: атласы спрайтов и иконок из ASCII-карт, элементы интерфейса (кнопки, панель),
+- BUTTONS:10-18 INK:19 PAPER:20 makeCanvas:22-26 paint:28-35 atlas:38-51 portalRows:53-70 buildSprites:72-84 buildIcons:86-91 drawButton:94-101 drawPanel:103-109 buildUi:111-143 LIGHT_SIZE:144 LIGHT_HOLE:145 buildBackdrops:148-166 buildTextures:168-175 buildAnimations:177-183
 
-## js/ai.js (310) → MZ.ai
-ИИ-помощник (vibecode.moe, OpenAI-совместимый /v1/chat/completions).
-- CACHE_KEY:10 WORLD_IDS:11 SHAPES:12 SYSTEM:14-16 AGE_GUIDE:18-23
-- AI:25-278 → cfg:35 loadCache:37-43 saveCache:44 onChange:46 setStatus:47-51 userEnabled:53-56 available:57-63 request:66-110 task:113-127 ·Сказки· storyPrompt:130-142 validateStory:144-174 fetchStory:176-187 takeStory:190-199 storiesReady:200 ·Фразы совёнка· fetchPhrases:203-222 phrase:223-230 ·Названия уровней· fetchNames:233-246 levelName:247-252 prefetch:255-266 ping:269-277
-- parseJson:280-287 cleanText:290-292 LOCAL_PHRASES:294-303
+## src/audio/sfx.js (152) → sfx
+Звук без файлов: эффекты и фоновая музыка синтезируются на WebAudio, плюс вибрация.
+- A:6-10 tone:12-28 noise:30-42 N:44
+- SFX:47-72 → click:48 step:49-54 collect:55 key:56 gate:57 locked:58 portal:59 hit:60 bump:61 door:62 win:63-66 lose:67 star:68 bonus:69 hint:70 sleep:71-72
+- SCALES:75-82 stopTimer:84-87 runMusic:89-115
+- sfx:117-151 → configure:119-125 unlock:127-140 suspend:141 resume:142 play:143 startMusic:145 stopMusic:146 buzz:147-150
 
-## js/story.js (112) → MZ.story
-Сказки: локальный генератор (мгновенный запасной вариант для ИИ) и сборка уровня по сказке
-- THEMES:7-14 WORLD_IDS:15 ITEMS_NOM:16 TALES:19-45 PARAMS:47-52 local:54-73 levelSpec:76-91 goalText:93-100 goalSpeech:103-108
+## src/ui/kit.js (191) → FONT, WHITE, hex, BTN, BTN_H, metrics, TITLE_IN_BAR, CARD_H, hudInsets, label, icon, sprite, button, panel, backdrop, dim, goto, UiScene
+Набор интерфейса на Phaser: метрики экрана, текст, кнопки, панели, фон, базовая сцена с перестройкой при resize.
+- FONT:10 WHITE:11 hex:12 BTN:15 BTN_H:16 metrics:18-26 TITLE_IN_BAR:28 CARD_H:29 hudInsets:34-48 label:52-64 icon:66-69 sprite:71-74 DARK_TEXT:77 button:84-132 panel:135-146 backdrop:149-154 dim:157-160 OVERLAYS:162 goto:165-171
+- class UiScene:177-190 → create:178-182 rebuild:183-188 build:189-190
 
-## js/game.js (599) → MZ.Game, MZ.computeStars
-Игровая логика: движение по клеткам с плавной интерполяцией, скольжение по коридорам,
-- class Game:13-571 → constructor:14-23 start:25-79 ·Ввод· begin:82-87 setHeld:89-94 push:96-107 release:108-111 traceTo:113-124 tapToward:125-130 ·Правила прохода· passable:133-142 exits:143-147 bump:148-164 chooseDir:167-211 chooseStep:214-227 startMove:229-238 openGate:240-248 arrive:250-275 take:277-311 teleport:313-326 ·Подсказка-клубочек· useHint:329-353 ·Враги· updateEnemies:356-398 closedGate:399 enemyNext:400-428 onHit:430-445 ·Кадр· update:448-525 ·Итоги· win:528-538 lose:539-547 result:549-568 emit:570-571
-- computeStars:573-594
+## src/scenes/BootScene.js (16) → BootScene
+Сцена загрузки: рисует все текстуры из данных (файлов-картинок нет), создаёт анимации и открывает меню.
+- class BootScene:5-15 → create:8-14
 
-## js/ui.js (873) → MZ.ui
-Интерфейс: экраны, модальные окна, HUD, совёнок, тосты, иконки. Действия вызывают MZ.app.*
-- ·Иконки (24×24, штрих)· ICONS:10-67 icon:68-70 iconEl:71-77 OWL:80-86 ·Мини-холсты· sizedCanvas:89-96 heroCanvas:97-101 itemCanvas:102-106 keyCanvas:107-111 MODE_COLORS:113 AGE_COLORS:114 isTouch:115
-- UI:117-866 → init:120-134 ·Экраны· show:137-149 hideScreens:150 stopAnim:151 screen:153 backBtn:154-156 topbar:157-159 welcome:162-218 home:220-279 animateHeroArt:282-341 levels:343-384 story:387-439 records:441-483 achievements:485-504 settings:506-594 voiceSettings:597-619 ·Модальные окна· openModal:622-630 closeModal:631-637 resultModal:639-669 loseModal:671-683 pauseModal:685-710 profilesModal:712-726 confirm:728-736 holdToConfirm:739-754 ·HUD· showHud:757-779 hideHud:780-784 updateHud:785-815 hintAttention:816 owl:818-828 hideOwl:829 intro:831-850 hideIntro:851-857 toast:859-865
+## src/scenes/GameScene.js (458) → GameScene
+Игровая сцена: показывает уровень (слой лабиринта, герой, предметы, сторожа, туман), ведёт камеру,
+- MIN_CELL:18 MAX_CELL:19 SWIPE:20 HOLD_TOUCH:22 HOLD_KEYS:23 KEYS:24 DEPTH:26
+- class GameScene:28-457 → init:31 create:33-61 hud:63 ·Мир· buildWorld:66-135 placeFog:138-153 ·Камера· fitCamera:158-183 toggleOverview:185-189 toScreen:192-195 ·Управление· bindInput:199-250 pressDir:253-256 releaseDir:257 useHint:259 restart:260 pauseGame:262-270 autoPause:272 onResume:274-278 ·События игры → эффекты· onGameEvent:281-360 floatAt:362-365 shake:367-370 pickUp:372-376 burst:378-385 showHint:388-397 finish:399-412 showResult:414-417 ·Кадр· update:420-456
 
-## js/main.js (328) → MZ.app
-Точка входа и контроллер приложения: связывает игру, интерфейс, прогресс и ИИ
-- app:8-310 → boot:11-54 loop:56-65 measureInsets:67-74 aspect:75-79 ·Навигация· home:82 stop:83-89 openMode:90-94 continueGame:95-99 startCampaign:100-104 startDaily:105 startStory:106-109 pickStory:110-117 startLevel:119-144 retry:146 next:147-153 quit:154-159 pause:160-166 resume:167-170 hint:171-174 toggleOverview:175-180 ·События игры· onStart:183-187 onEvent:188-239 onWin:240-247 onLose:248-252 onKey:253-265 ·Профили и настройки· applySettings:268-278 createProfile:279-285 updateProfile:286-291 switchProfile:292-297 afterProfileChange:298-301 registerSW:303-309
+## src/scenes/HudScene.js (164) → HudScene
+Интерфейс поверх игрового поля: пауза, счётчики (находки, ключи, жизни), подсказка, обзор лабиринта,
+- INTROS:11-20
+- class HudScene:22-163 → create:25-29 build:31-69 showIntro:72-96 hideIntro:98-104 refresh:107-131 update:133 ·Сообщения от игровой сцены· floatText:136-141 tip:143-150 attention:153-156 noHints:158-162
 
-## css/style.css (568)
-- Токены:5-73
-- Основа:74-107 → .eyebrow .muted .num .grow .row
-- Каркас:108-133 → .stage .screen .wrap .topbar
-- Кнопки:134-167 → .btn .is-down .btn--sun .btn--teal .btn--grape .btn--sky .btn--ghost .btn--xl .btn--block .icon-btn
-- Заплатка со стежком:168-174 → .patch
-- Главная:175-236 → .profile-chip .who .stat-pill .hero .hero-art .hero-copy .logo .eyebrow .tagline .play-stack .play-sub .section-head .modes .mode-card .tile .meta .badge-ai .c-teal .c-sun .c-accent .c-night .c-grape .c-sky .duo .link-card
-- Онбординг:237-267 → .ages .age-card .age .is-selected .heroes .hero-pick .field .input .select .steps-dots .on
-- Уровни:268-293 → .world .world-head .world-swatch .levels-grid .lvl .stars .on .is-done .is-next .is-locked .lock .endless .grow
-- Сказка:294-315 → .chips .chip-btn .is-on .story-card .story-intro .story-tags .tag .tag--ai .story-actions .row .btn--block .ai-line .ai-dot .ok .working .offline
-- Рекорды:316-347 → .tabs .tab .is-on .players .player-card .board .who .who-txt .nm .score .place-1 .place-2 .place-3 .mine .empty
-- Достижения:348-363 → .ach-summary .big .bar .ach-grid .ach .medal .is-on .body .prog
-- Настройки:364-407 → .set-list .set-row .ico .txt .seg .select .btn .switch .is-on .profile-panel .help-list .profile-list .profile-item .grow .icon-btn
-- HUD:408-510 → .hud .hud-btn .hud-title .hud-stats .hchip .is-warn .is-done .hearts .off .hud-bottom .round-btn .hint .is-attention .badge .dpad .is-down .owl .intro-card .eyebrow .goal .extra .how .is-leaving
-- Модальные окна:511-547 → .modal .modal-card .modal-actions .row .btn .big-stars .on .result-stats .ribbon .new-ach .cheer .hold-btn
-- Тосты:548-568 → .toasts .toast .is-leaving .fatal
+## src/scenes/LevelsScene.js (96) → LevelsScene
+Выбор уровня: по странице на мир (10 уровней), звёзды за каждый, замки на недоступных. Листается стрелками и свайпом.
+- class LevelsScene:9-95 → init:12-15 create:17-34 turn:36-42 build:44-94
+
+## src/scenes/MenuScene.js (78) → MenuScene
+Главное меню: название, выбор героя, большая кнопка «Играть» (продолжить с первого непройденного уровня), уровни и настройки.
+- class MenuScene:9-77 → create:12-21 play:23 switchHero:25-30 build:32-76
+
+## src/scenes/PauseScene.js (63) → PauseScene
+Пауза поверх игры: продолжить, начать заново, к уровням, в меню и быстрые переключатели звука и управления.
+- class PauseScene:8-62 → init:11 create:13-20 resume:22-28 build:30-61
+
+## src/scenes/ResultScene.js (110) → ResultScene
+Итоги уровня поверх игры: победа — звёзды, шаги и время, переход дальше; поражение — предложение попробовать ещё раз.
+- CHEERS:9
+- class ResultScene:11-109 → init:14-19 create:21-29 primary:31 retry:32 toLevels:33 news:36-42 build:44-98 confetti:100-108
+
+## src/scenes/SettingsScene.js (71) → TOGGLES, toggleSetting, SettingsScene
+Настройки: звук, музыка, вибрация, кнопки-стрелки на экране, сброс прогресса (со вторым нажатием для подтверждения).
+- TOGGLES:11-16 toggleSetting:18-22
+- class SettingsScene:24-70 → create:27-31 build:33-69
+
+## src/config.js (3) → VERSION
+Общие константы приложения. При выпуске версии обнови VERSION здесь, CACHE в sw.js и version в package.json.
+- VERSION:2-3
+
+## src/main.js (88)
+Точка входа: создаёт Phaser.Game, подгоняет холст под экран в пикселях устройства, включает звук по первому жесту.
+- viewport:19-22 safeArea:25-32 start:34-85
 
 ## index.html
-- id: #app #stage #game #hud #btnPause #hudWorld #hudLevel #hudStats #hudBottom #btnMap #dpad #btnHint #owl #intro #screens #modal #toasts
-- порядок скриптов: config → util → maze → levels → sprites → render → audio → input → progress → ai → story → game → ui → main
+- id: #game #safe #boot
+- точка входа: src/main.js (ES-модули, дальше — по import)
 
 ## Реестры (строковые ключи)
-- Иконки `UI.icon(name)` — js/ui.js `ICONS`: play pause home restart back next trophy list settings sound mute music star stars yarn zoom map lock clock heart key sparkle user users check close path bug moon calendar book flag crown apple gem medal brain target bolt ghost portal shoe globe fire vibrate thread dpad contrast info plus edit trash hand keyboard speaker fullscreen
-- Звуки `audio.play(name)` — js/audio.js `SFX`: click step collect key gate locked portal hit bump door win lose star tick bonus hint achievement
-- Музыка `audio.startMusic(id)` — js/audio.js `SCALES`: forest sea candy snow space menu
-- Миры — js/levels.js `WORLDS`: forest sea candy snow space
-- Возрасты — js/levels.js `AGES`: tiny kid teen pro
-- Режимы — js/levels.js `MODES`: classic time enemies dark story daily
-- Цвета ключей (индекс = color) — js/levels.js `KEY_COLORS`: red blue green yellow
-- Герои — js/sprites.js `HEROES`: hedgehog cat frog penguin bunny
-- Виды предметов `drawItem(kind)` (мировой `world.item` + бонусы) — js/sprites.js `drawItem`: apple shell candy snowflake crystal clock firefly heart
-- Виды врагов `drawEnemy(kind)` = `world.enemy` (последний — ветка else) — js/sprites.js `drawEnemy`: bee crab jelly snowball
-- Фигуры лабиринта — js/maze.js `SHAPES`: circle diamond heart star flower ring cross house
-- Достижения — js/progress.js `ACHIEVEMENTS`: first_win wins_10 wins_50 stars_30 stars_100 items_50 items_250 keys_10 perfect_10 nohint_10 shortest_5 time_5 ninja_5 dark_5 portals_10 steps_1000 steps_10000 worlds_5 story_3 daily_1 streak_3 streak_7 campaign all_modes
-- Настройки `P.settings` — js/progress.js `DEFAULT_SETTINGS`: sound music voice vibration trail dpad ai theme glide speech voiceName
-- Темы сказок — js/story.js `THEMES`: any forest sea candy snow space
-- Фразы совёнка `AI.phrase(kind)` — js/ai.js `LOCAL_PHRASES`: start collect stuck win lose gate exit key
-- События `Game.emit(type)` → `app.onEvent`: gateLocked exitLocked gateOpen key collect exitOpen bonus portal noHints hint enemySleep hit overtime stuck
-- Экраны `UI.show(name)`: settings records achievements story welcome home levels
+- Миры (индекс = `level.worldIndex`) — src/core/worlds.js `WORLDS`: forest sea candy snow space
+- Герои — src/core/worlds.js `HEROES`: hedgehog cat frog penguin bunny
+- Цвета ключей (индекс = color) — src/core/worlds.js `KEY_COLORS`: red blue green yellow
+- Механики и уровень, с которого они появляются — src/core/levels.js `UNLOCKS`: gates shapes portals enemies wander dark chaser
+- Фигуры лабиринта — src/core/maze.js `SHAPES`: circle diamond heart star flower ring cross house
+- Настройки `progress.settings` — src/core/progress.js `DEFAULT_SETTINGS`: sound music vibration dpad
+- Спрайты 16×16 — кадры атласа `sprites` — src/gfx/sprites.js `SPRITES`: hedgehog cat frog penguin bunny bee crab jelly snowball ufo apple shell candy snowflake crystal firefly heart key house houseOpen yarn star
+- Иконки — кадры атласа `icons` — src/gfx/sprites.js `ICONS`: pause play arrow home restart settings sound mute music levels lock check close hint hand trash vibration dpad steps clock map zzz star heart key
+- Звуки `sfx.play(name)` — src/audio/sfx.js `SFX`: click step collect key gate locked portal hit bump door win lose star bonus hint sleep
+- Музыка `sfx.startMusic(id)` — src/audio/sfx.js `SCALES`: forest sea candy snow space menu
+- События `Game.emit(type)` → `GameScene.onGameEvent()`: start bump gateLocked exitLocked gateOpen step key collect exitOpen bonus portal noHints hint enemySleep hit stuck win lose
+- Сцены `scene.start(key)`: Boot (BootScene.js) · Game (GameScene.js) · Hud (HudScene.js) · Levels (LevelsScene.js) · Menu (MenuScene.js) · Pause (PauseScene.js) · Result (ResultScene.js) · Settings (SettingsScene.js)
 
 ## Прочие файлы (строк) — описание в docs/kb/testing.md
-sw.js (41) · tests/run.sh (21) · tests/levels.test.js (68) · tests/game.test.js (123) · tests/ui.smoke.js (77) · tests/dom-stub.js (122) · tools/verify.sh (38) · tools/screens.sh (65) · tools/_server.sh (17) · tools/shot.sh (12) · tools/audit.sh (12) · tools/audit.js (47) · tools/snap.swift (58) · tools/kb.py (546)
+sw.js (35) · test/levels.test.js (108) · test/game.test.js (142) · test/progress.test.js (67) · test/sprites.test.js (33) · test/pwa.test.js (33) · test/autopilot.js (48) · test/browser.smoke.mjs (182) · tools/verify.sh (27) · tools/browser.mjs (71) · tools/screens.mjs (84) · tools/vendor.mjs (43) · tools/icon.mjs (33) · tools/kb.py (527)

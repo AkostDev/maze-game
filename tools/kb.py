@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""База знаний проекта для Claude (docs/kb).
+"""База знаний проекта для Claude (docs/kb): карта кода src/, проверка ссылок документов на код, отслеживание изменений.
 
   python3 tools/kb.py map     пересобрать карту кода docs/kb/MAP.md (символы и номера строк)
   python3 tools/kb.py check   проверить ссылки базы знаний на код и её свежесть
@@ -21,34 +21,34 @@ MAP = os.path.join(KB, 'MAP.md')
 SYNC = os.path.join(KB, '.sync.json')
 
 # Файлы, по которым в карте только заголовок (без символов)
-EXTRA = ['sw.js', 'tests/run.sh', 'tests/levels.test.js', 'tests/game.test.js', 'tests/ui.smoke.js', 'tests/dom-stub.js',
-         'tools/verify.sh', 'tools/screens.sh', 'tools/_server.sh', 'tools/shot.sh', 'tools/audit.sh', 'tools/audit.js', 'tools/snap.swift', 'tools/kb.py']
+EXTRA = ['sw.js', 'test/levels.test.js', 'test/game.test.js', 'test/progress.test.js', 'test/sprites.test.js', 'test/pwa.test.js',
+         'test/autopilot.js', 'test/browser.smoke.mjs', 'tools/verify.sh', 'tools/browser.mjs', 'tools/screens.mjs',
+         'tools/vendor.mjs', 'tools/icon.mjs', 'tools/kb.py']
+
+# Порядок папок src/ в карте: от чистой логики к сценам
+SRC_ORDER = ['core', 'gfx', 'audio', 'ui', 'scenes', '']
 
 # Реестры — имена, которые в коде используются как строковые ключи: (подпись, файл, константа, режим)
 #   keys — ключи первого уровня объекта; ids — значения id: '...'; allkeys — все ключи вида name:
 #   branches — значения сравнений `=== '...'` в теле функции
 REGISTRIES = [
-    ('Иконки `UI.icon(name)`', 'js/ui.js', 'ICONS', 'keys'),
-    ('Звуки `audio.play(name)`', 'js/audio.js', 'SFX', 'keys'),
-    ('Музыка `audio.startMusic(id)`', 'js/audio.js', 'SCALES', 'keys'),
-    ('Миры', 'js/levels.js', 'WORLDS', 'ids'),
-    ('Возрасты', 'js/levels.js', 'AGES', 'keys'),
-    ('Режимы', 'js/levels.js', 'MODES', 'keys'),
-    ('Цвета ключей (индекс = color)', 'js/levels.js', 'KEY_COLORS', 'ids'),
-    ('Герои', 'js/sprites.js', 'HEROES', 'ids'),
-    ('Виды предметов `drawItem(kind)` (мировой `world.item` + бонусы)', 'js/sprites.js', 'drawItem', 'branches'),
-    ('Виды врагов `drawEnemy(kind)` = `world.enemy` (последний — ветка else)', 'js/sprites.js', 'drawEnemy', 'branches'),
-    ('Фигуры лабиринта', 'js/maze.js', 'SHAPES', 'keys'),
-    ('Достижения', 'js/progress.js', 'ACHIEVEMENTS', 'ids'),
-    ('Настройки `P.settings`', 'js/progress.js', 'DEFAULT_SETTINGS', 'allkeys'),
-    ('Темы сказок', 'js/story.js', 'THEMES', 'ids'),
-    ('Фразы совёнка `AI.phrase(kind)`', 'js/ai.js', 'LOCAL_PHRASES', 'keys'),
+    ('Миры (индекс = `level.worldIndex`)', 'src/core/worlds.js', 'WORLDS', 'ids'),
+    ('Герои', 'src/core/worlds.js', 'HEROES', 'ids'),
+    ('Цвета ключей (индекс = color)', 'src/core/worlds.js', 'KEY_COLORS', 'ids'),
+    ('Механики и уровень, с которого они появляются', 'src/core/levels.js', 'UNLOCKS', 'keys'),
+    ('Фигуры лабиринта', 'src/core/maze.js', 'SHAPES', 'keys'),
+    ('Настройки `progress.settings`', 'src/core/progress.js', 'DEFAULT_SETTINGS', 'allkeys'),
+    ('Спрайты 16×16 — кадры атласа `sprites`', 'src/gfx/sprites.js', 'SPRITES', 'keys'),
+    ('Иконки — кадры атласа `icons`', 'src/gfx/sprites.js', 'ICONS', 'keys'),
+    ('Звуки `sfx.play(name)`', 'src/audio/sfx.js', 'SFX', 'keys'),
+    ('Музыка `sfx.startMusic(id)`', 'src/audio/sfx.js', 'SCALES', 'keys'),
 ]
 
-KEYWORDS = {'if', 'for', 'while', 'switch', 'catch', 'return', 'function', 'else', 'do', 'try'}
+KEYWORDS = {'if', 'for', 'while', 'switch', 'catch', 'return', 'function', 'else', 'do', 'try', 'super', 'constructor'}
 # Слова заглавными буквами, которые в базе знаний не являются именами констант
 NOT_CONSTS = {'HUD', 'DOM', 'PWA', 'BFS', 'DFS', 'RNG', 'SVG', 'CSS', 'JSON', 'CORS', 'API', 'URL', 'HTML', 'MAP', 'TODO',
-              'HTTP', 'PNG', 'FPS', 'DPR', 'UI', 'OK', 'KB', 'REGISTRIES', 'ASSETS', 'CACHE'}
+              'HTTP', 'PNG', 'FPS', 'DPR', 'UI', 'OK', 'KB', 'REGISTRIES', 'ASSETS', 'CACHE', 'ESM', 'WEBGL', 'CANVAS',
+              'AUTO', 'NONE', 'OFL', 'MIT', 'NEAREST', 'WASD', 'ASCII', 'KLUBOK', 'RESIZE', 'FILL'}
 
 
 def read(rel):
@@ -57,10 +57,19 @@ def read(rel):
 
 
 def js_files():
-    try:
-        return re.findall(r'<script src="(js/[^"]+)"', read('index.html'))
-    except OSError:
-        return sorted('js/' + n for n in os.listdir(os.path.join(ROOT, 'js')) if n.endswith('.js'))
+    """Все модули src/**/*.js: папки в порядке SRC_ORDER, внутри — по алфавиту."""
+    out = []
+    src = os.path.join(ROOT, 'src')
+    for base, _dirs, files in os.walk(src):
+        for n in files:
+            if n.endswith('.js'):
+                out.append(os.path.relpath(os.path.join(base, n), ROOT).replace(os.sep, '/'))
+
+    def key(rel):
+        parts = rel.split('/')
+        d = parts[1] if len(parts) > 2 else ''
+        return (SRC_ORDER.index(d) if d in SRC_ORDER else len(SRC_ORDER), rel)
+    return sorted(out, key=key)
 
 
 def indent(line):
@@ -110,7 +119,6 @@ RE_CLASS = re.compile(r'^class (\w+)')
 RE_FUNC = re.compile(r'^(?:async )?function (\w+)\s*\(')
 RE_DECL = re.compile(r'^(?:const|let|var) (\w+) = (.*)$')
 RE_MEMBER = re.compile(r'^(\w+)\.(\w+) = (?:async )?(?:function\b|\(.*\)\s*=>|\w+\s*=>)')
-RE_EXPORT = re.compile(r'^MZ\.(\w+) = ')
 RE_METHOD = re.compile(r'^(?:async |static |get |set )?(\w+)\s*\([^)]*\)\s*\{')
 RE_PROPFN = re.compile(r'^(\w+):\s*(?:async\s+)?(?:function\b|\([^)]*\)\s*=>|\w+\s*=>)')
 
@@ -135,10 +143,16 @@ def parse_js(rel):
             section, section_in_owner = m.group(1), bool(owner)
             continue
         if ind == base:
-            m = RE_EXPORT.match(s)
-            if m:
-                exports.append('MZ.' + m.group(1))
-                continue
+            # ES-модули: `export` перед объявлением — имя попадает в список экспорта файла
+            exported = s.startswith('export ')
+            if exported:
+                s = re.sub(r'^export (default )?', '', s)
+                m = re.match(r'^(?:async )?(?:class|function|const|let) (\w+)', s)
+                if m:
+                    exports.append(m.group(1))
+                elif s.startswith('{'):
+                    exports.extend(x.split(' as ')[-1].strip() for x in s.strip('{}; ').split(',') if x.strip())
+                    continue
             m = RE_CLASS.match(s)
             if m:
                 owner, owner_end = m.group(1), block_end(lines, i, ind)
@@ -195,41 +209,24 @@ def registry(parsed, const, mode):
     return None
 
 
-def parse_css(rel):
-    lines = read(rel).split('\n')
-    sections, cur = [], None
-    for i, l in enumerate(lines):
-        m = re.match(r'^/\* =+ (.+?) =+ \*/', l)
-        if m:
-            if cur:
-                cur['end'] = i - 1
-            cur = {'name': m.group(1), 'start': i, 'end': len(lines) - 1, 'classes': []}
-            sections.append(cur)
-            continue
-        if cur and '{' in l and not l.lstrip().startswith(('/*', '*')):
-            for chunk in l.split('}'):
-                if '{' not in chunk:
-                    continue
-                for c in re.findall(r'\.([a-zA-Z][\w-]*)', chunk.split('{')[0]):
-                    if c not in cur['classes']:
-                        cur['classes'].append(c)
-    return {'lines': lines, 'sections': sections}
+GAME_JS = 'src/core/game.js'
 
 
 def collect():
-    """Разбор всего кода: {'js': {rel: parsed}, 'css': ..., 'ids': [...], 'events': [...], 'screens': [...]}"""
+    """Разбор всего кода: {'js': {rel: parsed}, 'ids': [...], 'events': [...], 'scenes': [(ключ, файл)]}"""
     data = {'js': {}, 'order': js_files()}
     for rel in data['order']:
         data['js'][rel] = parse_js(rel)
-    data['css'] = parse_css('css/style.css')
-    html = read('index.html')
+    html = read('index.html') if os.path.exists(os.path.join(ROOT, 'index.html')) else ''
     data['ids'] = re.findall(r'\bid="([\w-]+)"', html)
-    alljs = '\n'.join('\n'.join(p['lines']) for p in data['js'].values())
+    data['entry'] = re.findall(r'<script[^>]+src="([^"]+)"', html)
     uniq = lambda xs: list(dict.fromkeys(xs))
-    data['events'] = uniq(re.findall(r"this\.emit\('(\w+)'", '\n'.join(data['js']['js/game.js']['lines']))) if 'js/game.js' in data['js'] else []
-    data['screens'] = uniq(re.findall(r"(?:UI|this)\.show\('(\w+)'", alljs))
-    data['dyn_ids'] = uniq(re.findall(r"\bid: '([\w-]+)'", '\n'.join(data['js'].get('js/ui.js', {'lines': []})['lines'])) +
-                           re.findall(r'id="([\w-]+)"', alljs))
+    data['events'] = uniq(re.findall(r"this\.emit\('(\w+)'", '\n'.join(data['js'][GAME_JS]['lines']))) if GAME_JS in data['js'] else []
+    data['scenes'] = []
+    for rel, p in data['js'].items():
+        if rel.startswith('src/scenes/'):
+            for key in re.findall(r"super\(\s*'(\w+)'", '\n'.join(p['lines'])):
+                data['scenes'].append((key, rel.split('/')[-1]))
     return data
 
 
@@ -285,15 +282,9 @@ def build_map(data):
             L.append(p['header'])
         L.extend(fmt_syms(p))
         L.append('')
-    css = data['css']
-    L.append('## css/style.css (%d)' % len(css['lines']))
-    for s in css['sections']:
-        cls = ' '.join('.' + c for c in s['classes'])
-        L.append('- %s:%d-%d%s' % (s['name'], s['start'] + 1, s['end'] + 1, (' → ' + cls) if cls else ''))
-    L.append('')
     L.append('## index.html')
     L.append('- id: ' + ' '.join('#' + i for i in data['ids']))
-    L.append('- порядок скриптов: ' + ' → '.join(r[3:-3] for r in data['order']))
+    L.append('- точка входа: ' + ' '.join(data['entry']) + ' (ES-модули, дальше — по import)')
     L.append('')
     L.append('## Реестры (строковые ключи)')
     for label, rel, const, mode in REGISTRIES:
@@ -302,8 +293,8 @@ def build_map(data):
             L.append('- %s: ⚠ `%s` не найден в %s — поправь REGISTRIES в tools/kb.py' % (label, const, rel))
         else:
             L.append('- %s — %s `%s`: %s' % (label, rel, const, ' '.join(vals)))
-    L.append('- События `Game.emit(type)` → `app.onEvent`: ' + ' '.join(data['events']))
-    L.append('- Экраны `UI.show(name)`: ' + ' '.join(data['screens']))
+    L.append('- События `Game.emit(type)` → `GameScene.onGameEvent()`: ' + ' '.join(data['events']))
+    L.append('- Сцены `scene.start(key)`: ' + ' · '.join('%s (%s)' % s for s in data['scenes']))
     L.append('')
     L.append('## Прочие файлы (строк) — описание в docs/kb/testing.md')
     L.append(' · '.join('%s (%d)' % (rel, len(read(rel).split('\n'))) for rel in EXTRA if os.path.exists(os.path.join(ROOT, rel))))
@@ -340,11 +331,6 @@ def fingerprints(data):
                 continue
             d[s.full] = sha('\n'.join(p['lines'][s.start:s.end + 1]))
         fp[rel] = d
-    css = data['css']
-    d = {'_': sha('\n'.join(css['lines']))}
-    for s in css['sections']:
-        d[s['name']] = sha('\n'.join(css['lines'][s['start']:s['end'] + 1]))
-    fp['css/style.css'] = d
     for rel in ['index.html'] + EXTRA:
         if os.path.exists(os.path.join(ROOT, rel)):
             fp[rel] = {'_': sha(read(rel))}
@@ -410,17 +396,13 @@ def known(data):
                 fns.add(s.name)
             if s.owner:
                 owners.add(s.owner)
-    classes = set()
-    for s in data['css']['sections']:
-        classes.update(s['classes'])
-    # классы, которые назначаются из JS и встречаются в CSS только в составных селекторах, тоже учтены parse_css
-    ids = set(data['ids']) | set(data['dyn_ids'])
-    return fns, consts, classes, ids
+    ids = set(data['ids'])
+    return fns, consts, ids
 
 
 RE_TICK = re.compile(r'`([^`\n]+)`')
-RE_FILE = re.compile(r'^(?:\./)?((?:js|css|tests|tools|docs|\.claude)/[\w./-]+|[\w.-]+\.(?:html|md|js|css|sh|py|json|webmanifest|svg))$')
-BARE_DIRS = ['', 'js', 'css', 'tests', 'tools', 'docs', 'docs/kb']
+RE_FILE = re.compile(r'^(?:\./)?((?:src|test|tools|docs|vendor|assets|\.claude)/[\w./-]+|[\w.-]+\.(?:html|md|js|mjs|sh|py|json|webmanifest|svg))$')
+BARE_DIRS = ['', 'src', 'src/core', 'src/gfx', 'src/audio', 'src/ui', 'src/scenes', 'test', 'tools', 'docs', 'docs/kb']
 
 
 def file_exists(ref):
@@ -430,9 +412,11 @@ def file_exists(ref):
 
 
 def broken_refs(data):
-    fns, consts, classes, ids = known(data)
+    fns, consts, ids = known(data)
     docs = [os.path.join('docs', 'kb', n) for n in kb_docs()] + ['CLAUDE.md']
-    for base, _dirs, files in os.walk(os.path.join(ROOT, '.claude')):
+    for base, dirs, files in os.walk(os.path.join(ROOT, '.claude')):
+        # скиллы Phaser — внешняя документация (tools/vendor.mjs), ссылки в них на наш код не указывают
+        dirs[:] = [d for d in dirs if not d.startswith('phaser-')]
         for n in files:
             if n.endswith('.md'):
                 docs.append(os.path.relpath(os.path.join(base, n), ROOT))
@@ -457,9 +441,6 @@ def broken_refs(data):
                 elif re.match(r'^[\w.]+\(\)$', t):
                     if t[:-2].split('.')[-1] not in fns:
                         why = 'нет функции'
-                elif re.match(r'^\.[a-z][\w-]*$', t):
-                    if t[1:] not in classes:
-                        why = 'нет CSS-класса'
                 elif re.match(r'^#[A-Za-z][\w-]*$', t):
                     if t[1:] not in ids and not re.match(r'^#[0-9A-Fa-f]{3,8}$', t):
                         why = 'нет id'
@@ -515,7 +496,7 @@ def main(argv):
             payload = {}
         if kind == 'post-edit':
             path = (payload.get('tool_input') or {}).get('file_path') or ''
-            if path.endswith(('.js', '.css', '.html')):
+            if path.endswith(('.js', '.mjs', '.html')):
                 write_map()
             return 0
         if kind == 'session-start':
