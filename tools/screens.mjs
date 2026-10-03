@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Снимки экранов игры в headless Chromium: телефон 360×780 и ПК 1280×800 одной командой; печатает пути к PNG.
 //   node tools/screens.mjs menu levels game            пресеты (список ниже), по два снимка на каждый
-//   node tools/screens.mjs -m game                     только телефон;  -d — только ПК;  -t — ещё планшет 1024×768;  -l — ещё телефон лёжа 780×360
+//   node tools/screens.mjs -m game                     только телефон;  -d — только ПК;  -t — ещё планшет 1024×768;  -l — ещё телефон лёжа 780×360;  -s — ещё маленький телефон 320×568
 //   node tools/screens.mjs --level 30 --hero cat game  уровень (с нуля) и герой
 //   node tools/screens.mjs --js "KLUBOK.go('Levels', { page: 2 })" mycase     свой сценарий под именем mycase
 //   --hd — снимок в пикселях устройства (по умолчанию ужат до CSS-размера: картинка для Claude дешевле)
@@ -21,6 +21,7 @@ for (let i = 0; i < args.length; i++) {
   else if (a === '-d') opt.sizes = ['d'];
   else if (a === '-t') opt.sizes = opt.sizes.concat('t');
   else if (a === '-l') opt.sizes = opt.sizes.concat('l');
+  else if (a === '-s') opt.sizes = opt.sizes.concat('s');
   else if (a === '--hd') opt.hd = true;
   else if (a === '--level') opt.level = +args[++i];
   else if (a === '--hero') opt.hero = args[++i];
@@ -29,7 +30,7 @@ for (let i = 0; i < args.length; i++) {
   else names.push(a);
 }
 
-const SIZES = { m: { width: 360, height: 780, dpr: 2, touch: true }, d: { width: 1280, height: 800, dpr: 1, touch: false }, t: { width: 1024, height: 768, dpr: 2, touch: true }, l: { width: 780, height: 360, dpr: 2, touch: true } };
+const SIZES = { m: { width: 360, height: 780, dpr: 2, touch: true }, d: { width: 1280, height: 800, dpr: 1, touch: false }, t: { width: 1024, height: 768, dpr: 2, touch: true }, l: { width: 780, height: 360, dpr: 2, touch: true }, s: { width: 320, height: 568, dpr: 2, touch: true } };
 const L = opt.level;
 const GAME = `KLUBOK.go('Game', { index: ${L} });`;
 const PLAY = `KLUBOK.game.scene.getScene('Game').logic.begin();`;

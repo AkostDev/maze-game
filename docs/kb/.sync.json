@@ -283,18 +283,18 @@
 "_": "118d8d8db7"
 },
 "src/scenes/LevelsScene.js": {
-"LevelsScene.build": "81bb613984",
+"LevelsScene.build": "96a695e150",
 "LevelsScene.create": "2eed5ddc91",
 "LevelsScene.init": "a675382b5a",
 "LevelsScene.turn": "16f6717455",
-"_": "01d14fb109"
+"_": "1eb5926403"
 },
 "src/scenes/MenuScene.js": {
-"MenuScene.build": "bb461162e4",
+"MenuScene.build": "dcf9fcad9c",
 "MenuScene.create": "66501807c6",
 "MenuScene.play": "15ca444236",
 "MenuScene.switchHero": "4f692543ef",
-"_": "a94d46173d"
+"_": "d47331628a"
 },
 "src/scenes/PauseScene.js": {
 "PauseScene.build": "c344c1a49c",
@@ -354,7 +354,7 @@
 "_": "6533cf7d35"
 },
 "test/browser.smoke.mjs": {
-"_": "ea23b968dc"
+"_": "61c0c361f7"
 },
 "test/game.test.js": {
 "_": "c9ed50560c"
@@ -375,13 +375,13 @@
 "_": "7e4aaa5a20"
 },
 "tools/icon.mjs": {
-"_": "26d7671c37"
+"_": "001deaf2f6"
 },
 "tools/kb.py": {
 "_": "b600ab5fd1"
 },
 "tools/screens.mjs": {
-"_": "114fac4dcd"
+"_": "e39cf5a7f4"
 },
 "tools/vendor.mjs": {
 "_": "9901ae989d"

@@ -40,8 +40,10 @@ export class MenuScene extends UiScene {
     const colR = wide ? Math.round(m.W * 0.74) : m.cx;
     const pw = wide ? Math.min(132, Math.floor(m.aw * 0.42)) : Math.min(132, m.aw - 16); // ширина кнопки «Играть»
     const blockH = wide ? 150 : 262; // высота содержимого в арт-пикселях
-    const k = Math.min(1, (m.ah - 12) / blockH); // на очень низких экранах сжимаем отступы
-    let y = Math.max(m.safe.top + 6 * u, m.cy - (blockH * k * u) / 2);
+    // Стоя верхняя полоса отдана счётчику звёзд — название не должно на него наезжать; на низких экранах отступы сжимаются
+    const band = wide ? 4 : 18;
+    const k = Math.min(1, (m.ah - band - 6) / blockH);
+    let y = m.safe.top + band * u + Math.max(0, (m.H - m.safe.top - band * u - blockH * k * u) / 2);
 
     const title = label(this, colL, y + 22 * u * k, 'Волшебный\nклубок', wide ? 18 : 20, WHITE,
       { stroke: INK, strokeW: 3, lineSpacing: -3 });

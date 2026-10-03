@@ -53,8 +53,9 @@ export class LevelsScene extends UiScene {
     label(this, m.cx, top, wd.name, m.aw < 200 ? 9 : 11, WHITE, { stroke: INK, strokeW: 3 });
     const sx = m.W - m.safe.right - 6 * u;
     const st = label(this, sx, top, progress.rangeStars(first, LEVELS_PER_WORLD) + '/' + LEVELS_PER_WORLD * 3, 7, WHITE, { stroke: INK, strokeW: 2, ox: 1 });
-    if (m.aw >= 200) icon(this, sx - st.width - 5 * u, top, 'star', '#ffcd45');
-    else st.setY(top + 14 * u);
+    const sy = m.aw >= 200 ? top : top + 15 * u; // на узком экране счётчик уходит под шапку
+    st.setY(sy);
+    icon(this, sx - st.width - 5 * u, sy, 'star', '#ffcd45');
 
     // Сетка уровней: 3 колонки стоя, 5 — лёжа
     const cols = m.portrait ? 3 : 5, rows = Math.ceil(LEVELS_PER_WORLD / cols);

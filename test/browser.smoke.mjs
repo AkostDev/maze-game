@@ -122,6 +122,29 @@ async function run(srv, size) {
     await wait(250);
     st = await state();
     ok(st.dark === st.fog, 'уровень ' + index + ': туман не соответствует правилам');
+    if (index === LEVELS[0]) {
+      // Удержание: свайп и палец не отпущен — герой идёт по прямой, пока есть проход
+      const run = await page.evaluate(() => {
+        const gs = KLUBOK.game.scene.getScene('Game'), lg = gs.logic, g = gs.level.grid;
+        let best = { dir: -1, len: 0 };
+        for (let d = 0; d < 4; d++) {
+          let c = lg.player.cell, n = 0;
+          while (lg.passable(c, d) && n < 20) { c = g.neighbor(c, d); n++; }
+          if (n > best.len) best = { dir: d, len: n };
+        }
+        return best;
+      });
+      if (run.len >= 2) {
+        await page.mouse.move(size.width / 2, size.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(size.width / 2 + VEC[run.dir][0] * far, size.height / 2 + VEC[run.dir][1] * far, { steps: 4 });
+        await wait(500 + run.len * 200);
+        await page.mouse.up();
+        await wait(200);
+        const walked = (await state()).steps;
+        ok(walked >= 2, 'удержание после свайпа: шагов ' + walked + ', а коридор длиной ' + run.len);
+      }
+    }
     const res = await autoplay();
     ok(res !== 'stuck', 'уровень ' + index + ': автопилот застрял');
     await isActive('Result');

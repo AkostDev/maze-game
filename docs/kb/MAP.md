@@ -73,13 +73,13 @@
 - INTROS:11-20
 - class HudScene:22-163 → create:25-29 build:31-69 showIntro:72-96 hideIntro:98-104 refresh:107-131 update:133 ·Сообщения от игровой сцены· floatText:136-141 tip:143-150 attention:153-156 noHints:158-162
 
-## src/scenes/LevelsScene.js (96) → LevelsScene
+## src/scenes/LevelsScene.js (97) → LevelsScene
 Выбор уровня: по странице на мир (10 уровней), звёзды за каждый, замки на недоступных. Листается стрелками и свайпом.
-- class LevelsScene:9-95 → init:12-15 create:17-34 turn:36-42 build:44-94
+- class LevelsScene:9-96 → init:12-15 create:17-34 turn:36-42 build:44-95
 
-## src/scenes/MenuScene.js (78) → MenuScene
+## src/scenes/MenuScene.js (80) → MenuScene
 Главное меню: название, выбор героя, большая кнопка «Играть» (продолжить с первого непройденного уровня), уровни и настройки.
-- class MenuScene:9-77 → create:12-21 play:23 switchHero:25-30 build:32-76
+- class MenuScene:9-79 → create:12-21 play:23 switchHero:25-30 build:32-78
 
 ## src/scenes/PauseScene.js (63) → PauseScene
 Пауза поверх игры: продолжить, начать заново, к уровням, в меню и быстрые переключатели звука и управления.
@@ -122,4 +122,4 @@
 - Сцены `scene.start(key)`: Boot (BootScene.js) · Game (GameScene.js) · Hud (HudScene.js) · Levels (LevelsScene.js) · Menu (MenuScene.js) · Pause (PauseScene.js) · Result (ResultScene.js) · Settings (SettingsScene.js)
 
 ## Прочие файлы (строк) — описание в docs/kb/testing.md
-sw.js (35) · test/levels.test.js (108) · test/game.test.js (142) · test/progress.test.js (67) · test/sprites.test.js (33) · test/pwa.test.js (33) · test/autopilot.js (48) · test/browser.smoke.mjs (182) · tools/verify.sh (27) · tools/browser.mjs (71) · tools/screens.mjs (84) · tools/vendor.mjs (43) · tools/icon.mjs (33) · tools/kb.py (527)
+sw.js (35) · test/levels.test.js (108) · test/game.test.js (142) · test/progress.test.js (67) · test/sprites.test.js (33) · test/pwa.test.js (33) · test/autopilot.js (48) · test/browser.smoke.mjs (205) · tools/verify.sh (27) · tools/browser.mjs (71) · tools/screens.mjs (85) · tools/vendor.mjs (43) · tools/icon.mjs (32) · tools/kb.py (527)
