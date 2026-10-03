@@ -1,0 +1,17 @@
+{
+  "name": "volshebny-klubok",
+  "version": "2.0.0",
+  "description": "Волшебный клубок — пиксельная игра-лабиринт на Phaser 4",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/",
+    "verify": "tools/verify.sh",
+    "vendor": "node tools/vendor.mjs"
+  },
+  "devDependencies": {
+    "phaser": "4.2.1",
+    "playwright-core": "^1.63.0"
+  }
+}
