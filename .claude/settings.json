@@ -1,0 +1,59 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tools/verify.sh)",
+      "Bash(tools/verify.sh *)",
+      "Bash(./tools/verify.sh *)",
+      "Bash(tools/screens.sh *)",
+      "Bash(OUT=* tools/screens.sh *)",
+      "Bash(tools/shot.sh *)",
+      "Bash(tools/audit.sh)",
+      "Bash(tools/audit.sh *)",
+      "Bash(./tests/run.sh)",
+      "Bash(./tests/run.sh *)",
+      "Bash(tests/run.sh)",
+      "Bash(python3 tools/kb.py *)",
+      "Bash(python3 -m http.server *)"
+    ],
+    "deny": [
+      "Read(./tools/.snap)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/tools/kb.py\" hook session-start",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/tools/kb.py\" hook post-edit",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/tools/kb.py\" hook stop",
+            "timeout": 15,
+            "statusMessage": "Сверяю базу знаний с кодом…"
+          }
+        ]
+      }
+    ]
+  }
+}

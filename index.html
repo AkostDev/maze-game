@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Волшебный клубок</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Добрая игра-лабиринт для детей от 3 лет, подростков и взрослых: собирай предметы, открывай дверцы, проходи сказки от ИИ.">
+  <meta name="theme-color" content="#13A89E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Клубок">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Unbounded:wght@600;800&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="stage" class="stage" hidden>
+      <canvas id="game" aria-label="Лабиринт"></canvas>
+    </div>
+
+    <header id="hud" class="hud" hidden>
+      <button id="btnPause" class="hud-btn" type="button" aria-label="Пауза"></button>
+      <div class="hud-title">
+        <small id="hudWorld"></small>
+        <strong id="hudLevel"></strong>
+      </div>
+      <div class="hud-stats" id="hudStats"></div>
+    </header>
+
+    <div id="hudBottom" class="hud-bottom" hidden>
+      <button id="btnMap" class="round-btn" type="button" aria-label="Весь лабиринт"></button>
+      <div id="dpad" class="dpad" hidden>
+        <button type="button" data-dir="0" aria-label="Вверх"></button>
+        <button type="button" data-dir="3" aria-label="Влево"></button>
+        <button type="button" data-dir="1" aria-label="Вправо"></button>
+        <button type="button" data-dir="2" aria-label="Вниз"></button>
+      </div>
+      <button id="btnHint" class="round-btn hint" type="button" aria-label="Подсказка-клубочек"></button>
+    </div>
+
+    <div id="owl" class="owl" hidden aria-live="polite"></div>
+    <div id="intro" hidden></div>
+
+    <main id="screens"></main>
+    <div id="modal" class="modal" hidden role="dialog" aria-modal="true"></div>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/maze.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Волшебный клубок",
+  "short_name": "Клубок",
+  "description": "Добрая игра-лабиринт для детей от 3 лет, подростков и взрослых",
+  "lang": "ru",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#E6F4EE",
+  "theme_color": "#13A89E",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
